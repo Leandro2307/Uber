@@ -3,31 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisador de Corridas</title>
+    <title>Analisador de Corridas Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h1 { text-align: center; color: #0d47a1; }
-        form { display: flex; flex-direction: column; gap: 20px; }
-        input[type="file"] { border: 1px solid #ddd; padding: 10px; border-radius: 6px; }
-        button { background-color: #1877f2; color: #fff; border: none; border-radius: 6px; padding: 15px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
-        #loading { text-align: center; font-weight: bold; color: #606770; display: none; }
-        #resultado { margin-top: 25px; padding: 15px; border-radius: 8px; text-align: center; display: none; }
-        .metric { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .metric span { font-weight: bold; }
-        .excelente { background-color: #d4edda; color: #155724; } .boa { background-color: #cce5ff; color: #004085; }
-        .ruim { background-color: #fff3cd; color: #856404; } .pessima { background-color: #f8d7da; color: #721c24; }
+        :root {
+            --primary-color: #28a745; /* Verde Sucesso */
+            --primary-hover-color: #218838;
+            --secondary-color: #007bff; /* Azul Info */
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-grey: #f8f9fa;
+            --dark-grey: #343a40;
+            --text-color: #495057;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-grey);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--dark-grey);
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        h1 span {
+            color: var(--primary-color);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+        
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+            color: var(--dark-grey);
+        }
+
+        .file-input-wrapper {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .file-input-wrapper:hover {
+            background-color: #fdfdfd;
+            border-color: var(--primary-color);
+        }
+        .file-input-wrapper span {
+            color: #888;
+            font-weight: 500;
+        }
+        input[type="file"] {
+            display: none;
+        }
+
+        #file-name {
+            margin-top: 10px;
+            font-style: italic;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        button {
+            background: linear-gradient(45deg, var(--primary-color), #20c997);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 1.1em;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+            animation: none;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: rotate 1s ease infinite;
+            margin: 0 auto 10px auto;
+        }
+        
+        #resultado {
+            margin-top: 25px;
+            border-radius: 8px;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .veredicto {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .metric-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: var(--light-grey);
+            border-radius: 6px;
+            border-left: 4px solid var(--border-color);
+        }
+        .metric span {
+            font-weight: 600;
+            color: var(--dark-grey);
+        }
+
+        /* Classes de Veredito */
+        .excelente { border-left-color: #28a745; }
+        .excelente .veredicto { background-color: #d4edda; color: #155724; }
+        .boa { border-left-color: #007bff; }
+        .boa .veredicto { background-color: #cce5ff; color: #004085; }
+        .ruim { border-left-color: #ffc107; }
+        .ruim .veredicto { background-color: #fff3cd; color: #856404; }
+        .pessima { border-left-color: #dc3545; }
+        .pessima .veredicto { background-color: #f8d7da; color: #721c24; }
+
+        /* Animações */
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2); }
+            50% { transform: scale(1.03); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2); }
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Analisador de Corridas</h1>
+        <h1>Analisador de Corridas <span>Pro</span> 📈</h1>
         <form id="upload-form">
-            <label for="screenshot">Envie a captura de tela da corrida:</label>
-            <input type="file" id="screenshot" name="file" accept="image/png, image/jpeg" required>
-            <button type="submit">Analisar!</button>
+            <div class="form-group">
+                <label for="screenshot">Selecione a Captura de Tela da Corrida</label>
+                <label for="screenshot" class="file-input-wrapper">
+                    <span id="file-label-text">Clique aqui para enviar uma imagem</span>
+                </label>
+                <input type="file" id="screenshot" name="file" accept="image/png, image/jpeg, image/jpg" required>
+                <div id="file-name"></div>
+            </div>
+            <button type="submit">Analisar Corrida 🚀</button>
         </form>
-        <div id="loading">Analisando imagem, por favor aguarde...</div>
+        <div id="loading">
+            <div class="spinner"></div>
+            Analisando imagem...
+        </div>
         <div id="resultado"></div>
     </div>
 
@@ -35,11 +220,25 @@
         const form = document.getElementById('upload-form');
         const loadingDiv = document.getElementById('loading');
         const resultadoDiv = document.getElementById('resultado');
+        const fileInput = document.getElementById('screenshot');
+        const fileLabelText = document.getElementById('file-label-text');
+        const fileNameDiv = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileLabelText.textContent = 'Imagem Selecionada:';
+                fileNameDiv.textContent = fileInput.files[0].name;
+            } else {
+                fileLabelText.textContent = 'Clique aqui para enviar uma imagem';
+                fileNameDiv.textContent = '';
+            }
+        });
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
             loadingDiv.style.display = 'block';
             resultadoDiv.style.display = 'none';
+            resultadoDiv.innerHTML = '';
 
             const formData = new FormData(form);
 
@@ -50,29 +249,27 @@
                 });
 
                 const result = await response.json();
-                loadingDiv.style.display = 'none';
-
+                
                 if (response.ok) {
                     let veredictoClasse = result.veredicto.includes('EXCELENTE') ? 'excelente' :
                                          result.veredicto.includes('BOA') ? 'boa' :
                                          result.veredicto.includes('RUIM') ? 'ruim' : 'pessima';
                     
-                    resultadoDiv.className = veredictoClasse;
                     resultadoDiv.innerHTML = `
-                        <h2 style="margin-top:0;">${result.veredicto}</h2>
-                        <div class="metric"><strong>Ganho por KM:</strong> <span>${result.ganho_por_km}</span></div>
-                        <div class="metric"><strong>Ganho por Hora (Bruto):</strong> <span>${result.ganho_por_hora}</span></div>
-                        <div class="metric"><strong>Lucro Líquido da Corrida:</strong> <span>${result.lucro_liquido}</span></div>
+                        <div class="veredicto">${result.veredicto}</div>
+                        <div class="metric-grid">
+                            <div class="metric ${veredictoClasse}"><strong>Ganho por KM:</strong> <span>${result.ganho_por_km}</span></div>
+                            <div class="metric ${veredictoClasse}"><strong>Ganho por Hora (Bruto):</strong> <span>${result.ganho_por_hora}</span></div>
+                            <div class="metric ${veredictoClasse}"><strong>Lucro Líquido da Corrida:</strong> <span>${result.lucro_liquido}</span></div>
+                        </div>
                     `;
                 } else {
-                    resultadoDiv.className = 'pessima';
-                    resultadoDiv.innerHTML = `<h2>Erro</h2><p>${result.error}</p>`;
+                    resultadoDiv.innerHTML = `<div class="veredicto pessima"><h2>Erro</h2><p>${result.error}</p></div>`;
                 }
             } catch (error) {
-                loadingDiv.style.display = 'none';
-                resultadoDiv.className = 'pessima';
-                resultadoDiv.innerHTML = `<h2>Erro de Conexão</h2><p>Não foi possível conectar ao servidor. Verifique se o programa Python está rodando.</p>`;
+                resultadoDiv.innerHTML = `<div class="veredicto pessima"><h2>Erro de Conexão</h2><p>Não foi possível conectar ao servidor. Verifique se o programa Python está rodando.</p></div>`;
             }
+            loadingDiv.style.display = 'none';
             resultadoDiv.style.display = 'block';
         });
     </script>
