@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Corridas</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h1 { text-align: center; color: #0d47a1; }
+        form { display: flex; flex-direction: column; gap: 20px; }
+        input[type="file"] { border: 1px solid #ddd; padding: 10px; border-radius: 6px; }
+        button { background-color: #1877f2; color: #fff; border: none; border-radius: 6px; padding: 15px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
+        #loading { text-align: center; font-weight: bold; color: #606770; display: none; }
+        #resultado { margin-top: 25px; padding: 15px; border-radius: 8px; text-align: center; display: none; }
+        .metric { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .metric span { font-weight: bold; }
+        .excelente { background-color: #d4edda; color: #155724; } .boa { background-color: #cce5ff; color: #004085; }
+        .ruim { background-color: #fff3cd; color: #856404; } .pessima { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analisador de Corridas</h1>
+        <form id="upload-form">
+            <label for="screenshot">Envie a captura de tela da corrida:</label>
+            <input type="file" id="screenshot" name="file" accept="image/png, image/jpeg" required>
+            <button type="submit">Analisar!</button>
+        </form>
+        <div id="loading">Analisando imagem, por favor aguarde...</div>
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const loadingDiv = document.getElementById('loading');
+        const resultadoDiv = document.getElementById('resultado');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            loadingDiv.style.display = 'block';
+            resultadoDiv.style.display = 'none';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/analisar', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                loadingDiv.style.display = 'none';
+
+                if (response.ok) {
+                    let veredictoClasse = result.veredicto.includes('EXCELENTE') ? 'excelente' :
+                                         result.veredicto.includes('BOA') ? 'boa' :
+                                         result.veredicto.includes('RUIM') ? 'ruim' : 'pessima';
+                    
+                    resultadoDiv.className = veredictoClasse;
+                    resultadoDiv.innerHTML = `
+                        <h2 style="margin-top:0;">${result.veredicto}</h2>
+                        <div class="metric"><strong>Ganho por KM:</strong> <span>${result.ganho_por_km}</span></div>
+                        <div class="metric"><strong>Ganho por Hora (Bruto):</strong> <span>${result.ganho_por_hora}</span></div>
+                        <div class="metric"><strong>Lucro Líquido da Corrida:</strong> <span>${result.lucro_liquido}</span></div>
+                    `;
+                } else {
+                    resultadoDiv.className = 'pessima';
+                    resultadoDiv.innerHTML = `<h2>Erro</h2><p>${result.error}</p>`;
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultadoDiv.className = 'pessima';
+                resultadoDiv.innerHTML = `<h2>Erro de Conexão</h2><p>Não foi possível conectar ao servidor. Verifique se o programa Python está rodando.</p>`;
+            }
+            resultadoDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
